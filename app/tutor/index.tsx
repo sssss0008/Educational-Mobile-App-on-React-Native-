@@ -1,16 +1,42 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useThemeColors } from '../../src/constants/Colors';
-import { TUTORS } from '../../src/data/mockData';
 import { useStore } from '../../src/store/useStore';
-import { ArrowLeft, Star, Calendar, MessageSquare, Check } from 'lucide-react-native';
+import { TUTORS } from '../../src/data/mockData';
+import { ArrowLeft, Star, Calendar, MessageSquare, Send, Sparkles, Check } from 'lucide-react-native';
 
 export default function TutorScreen() {
   const router = useRouter();
   const colors = useThemeColors();
   const bookedTutors = useStore((state) => state.bookedTutors);
   const bookTutor = useStore((state) => state.bookTutor);
+  const adminTutors = useStore((state) => state.adminTutors);
+
+  // AI Tutor Chat state
+  const [messages, setMessages] = useState([
+    { id: '1', sender: 'ai', text: 'Hello! I am your 24/7 EduPro AI Assistant. Ask me anything about mathematics, science, or programming!' },
+  ]);
+  const [inputMsg, setInputMsg] = useState('');
+
+  const handleSend = () => {
+    if (!inputMsg.trim()) return;
+    const userText = inputMsg.trim();
+    const newMsg = { id: `${Date.now()}`, sender: 'user', text: userText };
+    setMessages(prev => [...prev, newMsg]);
+    setInputMsg('');
+
+    // Simulate AI response
+    setTimeout(() => {
+      let reply = "That's a great academic question! Breaking it down into core principles helps clarify the mechanism. Let's review the step-by-step formula.";
+      if (userText.toLowerCase().includes('react native') || userText.toLowerCase().includes('expo')) {
+        reply = "React Native with Expo provides file-system routing via Expo Router and high performance with the Hermes engine.";
+      } else if (userText.toLowerCase().includes('calculus') || userText.toLowerCase().includes('math')) {
+        reply = "In calculus, derivatives represent instantaneous rates of change, computed using limits and power rules.";
+      }
+      setMessages(prev => [...prev, { id: `${Date.now() + 1}`, sender: 'ai', text: reply }]);
+    }, 600);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -20,14 +46,50 @@ export default function TutorScreen() {
         <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.back()}>
           <ArrowLeft color={colors.text} size={20} />
         </TouchableOpacity>
-        <Text style={[styles.topBarTitle, { color: colors.text }]}>Expert Tutors</Text>
+        <Text style={[styles.topBarTitle, { color: colors.text }]}>AI Tutor & Expert Booking</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Book 1-on-1 private tutoring sessions with top professors and industry experts.</Text>
+        {/* AI Tutor Chat Section */}
+        <View style={[styles.aiCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.aiHeader}>
+            <Sparkles color={colors.primary} size={20} />
+            <Text style={[styles.aiHeaderTitle, { color: colors.text }]}>EduPro AI Assistant</Text>
+          </View>
 
-        {TUTORS.map((tutor) => {
+          <View style={styles.chatBox}>
+            {messages.map((m) => (
+              <View
+                key={m.id}
+                style={[
+                  styles.msgBubble,
+                  m.sender === 'user' ? [styles.userMsg, { backgroundColor: colors.primary }] : [styles.aiMsg, { backgroundColor: colors.background, borderColor: colors.border }]
+                ]}
+              >
+                <Text style={[styles.msgText, m.sender === 'user' ? { color: '#FFFFFF' } : { color: colors.text }]}>{m.text}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.chatInputRow}>
+            <TextInput
+              style={[styles.chatInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+              placeholder="Ask your AI tutor a question..."
+              placeholderTextColor={colors.textSecondary}
+              value={inputMsg}
+              onChangeText={setInputMsg}
+            />
+            <TouchableOpacity style={[styles.sendBtn, { backgroundColor: colors.primary }]} onPress={handleSend}>
+              <Send color="#FFFFFF" size={18} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Expert Tutors Booking Section */}
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>Verified 1-on-1 Expert Tutors</Text>
+
+        {adminTutors.map((tutor) => {
           const isBooked = bookedTutors.includes(tutor.id);
           return (
             <View key={tutor.id} style={[styles.tutorCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -82,24 +144,81 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   topBarTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
   },
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
     paddingTop: 10,
-    gap: 16,
   },
-  headerSubtitle: {
+  aiCard: {
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    marginBottom: 24,
+  },
+  aiHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  aiHeaderTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  chatBox: {
+    gap: 10,
+    marginBottom: 14,
+    maxHeight: 220,
+  },
+  msgBubble: {
+    padding: 12,
+    borderRadius: 14,
+    maxWidth: '85%',
+  },
+  userMsg: {
+    alignSelf: 'flex-end',
+  },
+  aiMsg: {
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+  },
+  msgText: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  chatInputRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  chatInput: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    height: 44,
     fontSize: 14,
-    marginBottom: 4,
+  },
+  sendBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionHeading: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 16,
   },
   tutorCard: {
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     flexDirection: 'row',
+    marginBottom: 16,
   },
   tutorImage: {
     width: 80,

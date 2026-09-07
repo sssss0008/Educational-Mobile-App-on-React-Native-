@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COURSES, Course, DISCUSSIONS, Discussion } from '../data/mockData';
+import { COURSES, Course, DISCUSSIONS, Discussion, TUTORS, Tutor, QUIZ_QUESTIONS, QuizQuestion } from '../data/mockData';
 
 interface NotificationItem {
   id: string;
@@ -23,17 +23,26 @@ interface AppState {
   isOnboardingCompleted: boolean;
   completeOnboarding: () => void;
 
-  // Admin Portal state
+  // Admin Portal state & Advanced CRUD
   isAdminLoggedIn: boolean;
   adminLogin: (id: string, pass: string) => boolean;
   adminLogout: () => void;
+
   adminCourses: Course[];
-  addCourse: (course: Course) => void;
+  addCourse: (course: Course) => boolean;
   deleteCourse: (id: string) => void;
+
+  adminTutors: Tutor[];
+  addTutor: (tutor: Tutor) => void;
+  deleteTutor: (id: string) => void;
+
+  adminQuizQuestions: QuizQuestion[];
+  addQuizQuestion: (q: QuizQuestion) => void;
+
   adminAnnouncements: string[];
   addAnnouncement: (msg: string) => void;
 
-  // New Features (20+ Advanced Capabilities)
+  // Additional Features
   notes: Record<string, string>;
   saveNote: (lessonId: string, note: string) => void;
 
@@ -50,8 +59,11 @@ interface AppState {
   offlineCourses: string[];
   toggleOfflineCourse: (id: string) => void;
 
-  flashcardMastery: Record<string, number>; // quizId -> SM-2 grade level
+  flashcardMastery: Record<string, number>;
   updateFlashcardMastery: (quizId: string, grade: number) => void;
+
+  certificates: string[];
+  claimCertificate: (courseId: string) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -80,7 +92,7 @@ export const useStore = create<AppState>()(
       isOnboardingCompleted: false,
       completeOnboarding: () => set({ isOnboardingCompleted: true }),
 
-      // Admin Auth & Management
+      // Admin Auth & Management with robust validation
       isAdminLoggedIn: false,
       adminLogin: (id: string, pass: string) => {
         if (id.trim() === 'admin' && pass.trim() === 'admin123') {
@@ -90,19 +102,38 @@ export const useStore = create<AppState>()(
         return false;
       },
       adminLogout: () => set({ isAdminLoggedIn: false }),
+
       adminCourses: COURSES,
       addCourse: (course: Course) => {
+        if (!course.title || !course.category || !course.instructor || !course.price) {
+          return false;
+        }
         set({ adminCourses: [course, ...get().adminCourses] });
+        return true;
       },
       deleteCourse: (id: string) => {
         set({ adminCourses: get().adminCourses.filter(c => c.id !== id) });
       },
+
+      adminTutors: TUTORS,
+      addTutor: (tutor: Tutor) => {
+        set({ adminTutors: [tutor, ...get().adminTutors] });
+      },
+      deleteTutor: (id: string) => {
+        set({ adminTutors: get().adminTutors.filter(t => t.id !== id) });
+      },
+
+      adminQuizQuestions: QUIZ_QUESTIONS,
+      addQuizQuestion: (q: QuizQuestion) => {
+        set({ adminQuizQuestions: [q, ...get().adminQuizQuestions] });
+      },
+
       adminAnnouncements: ['Welcome to EduPro Learning Fall Semester 2026! Check out new AI Quantum Computing modules.'],
       addAnnouncement: (msg: string) => {
         set({ adminAnnouncements: [msg, ...get().adminAnnouncements] });
       },
 
-      // New Advanced Features State
+      // Additional Features State
       notes: {},
       saveNote: (lessonId, note) => {
         set({ notes: { ...get().notes, [lessonId]: note } });
@@ -149,6 +180,13 @@ export const useStore = create<AppState>()(
       flashcardMastery: {},
       updateFlashcardMastery: (quizId, grade) => {
         set({ flashcardMastery: { ...get().flashcardMastery, [quizId]: grade } });
+      },
+
+      certificates: ['course-1', 'course-3'],
+      claimCertificate: (courseId) => {
+        if (!get().certificates.includes(courseId)) {
+          set({ certificates: [...get().certificates, courseId] });
+        }
       },
     }),
     {
