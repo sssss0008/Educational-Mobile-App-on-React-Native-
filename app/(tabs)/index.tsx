@@ -3,24 +3,20 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar,
 import { useRouter } from 'expo-router';
 import { useThemeColors } from '../../src/constants/Colors';
 import { useStore } from '../../src/store/useStore';
-import { Flame, Bell, Search, BookOpen, Award, Users, Play, ShieldAlert, Sparkles, Clock, CheckCircle2, Bookmark, X } from 'lucide-react-native';
+import { Flame, Bell, Search, BookOpen, Award, Users, Play, Sparkles, Clock, CheckCircle2, Bookmark, X, ArrowRight, Zap } from 'lucide-react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
   const colors = useThemeColors();
   const streak = useStore((state) => state.streak);
   const adminAnnouncements = useStore((state) => state.adminAnnouncements);
-  const savedCourses = useStore((state) => state.savedCourses);
   const adminCourses = useStore((state) => state.adminCourses);
 
-  // Feature: Notification Modal
   const [showNotifModal, setShowNotifModal] = useState(false);
   const notifications = useStore((state) => state.notifications);
   const markNotificationRead = useStore((state) => state.markNotificationRead);
 
-  // Feature: Pomodoro Timer Modal
   const [showPomodoro, setShowPomodoro] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(25 * 60);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
@@ -29,11 +25,11 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={[styles.welcomeText, { color: colors.textSecondary }]}>Welcome back,</Text>
-          <Text style={[styles.userName, { color: colors.text }]}>Alex Student 👋</Text>
+          <Text style={[styles.welcomeText, { color: colors.textSecondary }]}>Welcome back, Scholar</Text>
+          <Text style={[styles.userName, { color: colors.text }]}>Alex Student ✨</Text>
         </View>
         <View style={styles.headerRight}>
-          <View style={styles.streakBadge}>
+          <View style={[styles.streakBadge, { shadowColor: colors.shadow }]}>
             <Flame color="#F59E0B" size={16} fill="#F59E0B" />
             <Text style={styles.streakText}>{streak} Days</Text>
           </View>
@@ -44,49 +40,54 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Feature: Admin Announcement Banner */}
+      {/* Admin Announcement Banner */}
       {adminAnnouncements.length > 0 && (
         <View style={[styles.announcementBanner, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Sparkles color={colors.primary} size={18} />
+          <View style={[styles.annIconBox, { backgroundColor: colors.primaryLight }]}>
+            <Sparkles color={colors.primary} size={16} />
+          </View>
           <Text style={[styles.announcementText, { color: colors.text }]} numberOfLines={1}>
-            📢 {adminAnnouncements[0]}
+            {adminAnnouncements[0]}
           </Text>
         </View>
       )}
 
       {/* Search Bar */}
-      <TouchableOpacity style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.push('/(tabs)/courses')}>
+      <TouchableOpacity style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadow }]} onPress={() => router.push('/(tabs)/courses')}>
         <Search color={colors.textSecondary} size={20} style={{ marginRight: 10 }} />
-        <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>Search courses, subjects, tutors...</Text>
+        <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>Search 20+ master courses, subjects...</Text>
       </TouchableOpacity>
 
       {/* Continue Learning Banner */}
       <View style={[styles.banner, { backgroundColor: colors.primary }]}>
         <View style={styles.bannerContent}>
-          <Text style={styles.bannerTag}>CONTINUE LEARNING</Text>
+          <View style={styles.bannerBadge}>
+            <Zap color="#FFFFFF" size={12} fill="#FFFFFF" />
+            <Text style={styles.bannerTag}>ACTIVE CURRICULUM</Text>
+          </View>
           <Text style={styles.bannerTitle}>Advanced React Native</Text>
-          <Text style={styles.bannerSub}>Lesson 3: State Management with Zustand</Text>
+          <Text style={styles.bannerSub}>Module 3: State Management & Zustand Architecture</Text>
           <TouchableOpacity style={styles.resumeBtn} onPress={() => router.push('/course/course-1')}>
             <Play color={colors.primary} size={16} fill={colors.primary} />
-            <Text style={[styles.resumeText, { color: colors.primary }]}>Resume Course</Text>
+            <Text style={[styles.resumeText, { color: colors.primary }]}>Resume Learning</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Quick Actions (Features 3-7) */}
+      {/* Quick Actions Grid */}
       <View style={styles.quickGrid}>
         <TouchableOpacity style={[styles.quickCard, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.push('/(tabs)/courses')}>
           <View style={[styles.quickIcon, { backgroundColor: colors.primaryLight }]}>
             <BookOpen color={colors.primary} size={22} />
           </View>
-          <Text style={[styles.quickTitle, { color: colors.text }]}>Courses</Text>
+          <Text style={[styles.quickTitle, { color: colors.text }]}>Master Courses</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.quickCard, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.push('/(tabs)/quiz')}>
           <View style={[styles.quickIcon, { backgroundColor: '#FEF3C7' }]}>
             <Award color="#D97706" size={22} />
           </View>
-          <Text style={[styles.quickTitle, { color: colors.text }]}>Quizzes & SM2</Text>
+          <Text style={[styles.quickTitle, { color: colors.text }]}>SM-2 Quizzes</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.quickCard, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.push('/tutor')}>
@@ -100,23 +101,24 @@ export default function HomeScreen() {
           <View style={[styles.quickIcon, { backgroundColor: '#EDE9FE' }]}>
             <Clock color="#7C3AED" size={22} />
           </View>
-          <Text style={[styles.quickTitle, { color: colors.text }]}>Pomodoro</Text>
+          <Text style={[styles.quickTitle, { color: colors.text }]}>Focus Timer</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Featured Courses */}
+      {/* Featured Courses Header */}
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Featured Courses</Text>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/courses')}>
-          <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Featured Master Courses</Text>
+        <TouchableOpacity style={styles.seeAllRow} onPress={() => router.push('/(tabs)/courses')}>
+          <Text style={[styles.seeAll, { color: colors.primary }]}>Explore All</Text>
+          <ArrowRight color={colors.primary} size={16} />
         </TouchableOpacity>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.coursesScroll}>
-        {adminCourses.map((course) => (
+        {adminCourses.slice(0, 8).map((course) => (
           <TouchableOpacity
             key={course.id}
-            style={[styles.courseCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            style={[styles.courseCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadow }]}
             onPress={() => router.push(`/course/${course.id}`)}
           >
             <Image source={{ uri: course.image }} style={styles.courseImage} />
@@ -187,6 +189,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 13,
     fontWeight: '600',
+    letterSpacing: 0.3,
   },
   userName: {
     fontSize: 22,
@@ -201,28 +204,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FEF3C7',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: 20,
-    gap: 4,
+    gap: 6,
+    elevation: 2,
   },
   streakText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#92400E',
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
+    elevation: 2,
   },
   notifDot: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 9,
+    right: 9,
     width: 8,
     height: 8,
     borderRadius: 4,
@@ -232,67 +237,90 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     marginBottom: 16,
-    gap: 10,
+    gap: 12,
+    elevation: 1,
+  },
+  annIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   announcementText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     flex: 1,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 14,
+    borderRadius: 16,
     paddingHorizontal: 16,
-    height: 50,
+    height: 52,
     borderWidth: 1,
     marginBottom: 20,
+    elevation: 2,
   },
   searchPlaceholder: {
     fontSize: 14,
+    fontWeight: '600',
   },
   banner: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 24,
+    padding: 22,
     marginBottom: 24,
+    elevation: 4,
   },
   bannerContent: {
     maxWidth: '90%',
   },
+  bannerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginBottom: 8,
+  },
   bannerTag: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 11,
-    fontWeight: '700',
-    marginBottom: 6,
-    letterSpacing: 0.5,
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
   bannerTitle: {
     color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '800',
-    marginBottom: 4,
+    fontSize: 22,
+    fontWeight: '900',
+    marginBottom: 6,
   },
   bannerSub: {
     color: 'rgba(255,255,255,0.9)',
     fontSize: 13,
-    marginBottom: 16,
+    marginBottom: 18,
+    lineHeight: 18,
   },
   resumeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 14,
     alignSelf: 'flex-start',
     gap: 8,
+    elevation: 3,
   },
   resumeText: {
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '800',
+    fontSize: 14,
   },
   quickGrid: {
     flexDirection: 'row',
@@ -301,65 +329,75 @@ const styles = StyleSheet.create({
   },
   quickCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 12,
     alignItems: 'center',
     borderWidth: 1,
     marginHorizontal: 3,
+    elevation: 2,
   },
   quickIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   quickTitle: {
     fontSize: 12,
     fontWeight: '700',
+    textAlign: 'center',
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  seeAllRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   seeAll: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   coursesScroll: {
     gap: 16,
     paddingBottom: 10,
   },
   courseCard: {
-    width: 240,
-    borderRadius: 16,
+    width: 250,
+    borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
+    elevation: 3,
   },
   courseImage: {
     width: '100%',
-    height: 130,
+    height: 140,
   },
   courseInfo: {
-    padding: 14,
+    padding: 16,
   },
   courseCategory: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 4,
+    letterSpacing: 0.5,
   },
   courseTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 10,
     height: 40,
+    lineHeight: 20,
   },
   courseFooter: {
     flexDirection: 'row',
@@ -367,23 +405,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coursePrice: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '900',
   },
   courseRating: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     padding: 20,
   },
   modalContent: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     borderWidth: 1,
+    elevation: 5,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -392,39 +431,41 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '900',
   },
   notifItem: {
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 8,
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 10,
   },
   notifTitle: {
     fontSize: 14,
     fontWeight: '700',
-    marginBottom: 2,
+    marginBottom: 3,
   },
   notifTime: {
     fontSize: 11,
+    fontWeight: '600',
   },
   timerDisplay: {
-    fontSize: 48,
+    fontSize: 52,
     fontWeight: '900',
     marginVertical: 10,
   },
   timerSub: {
     fontSize: 13,
-    marginBottom: 20,
+    marginBottom: 24,
+    textAlign: 'center',
   },
   timerBtn: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 14,
   },
   timerBtnText: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 15,
+    fontWeight: '800',
+    fontSize: 16,
   },
 });

@@ -13,6 +13,7 @@ export const LightColors = {
   warning: '#F59E0B',
   error: '#EF4444',
   card: '#FFFFFF',
+  shadow: 'rgba(79, 70, 229, 0.08)',
 };
 
 export const DarkColors = {
@@ -28,6 +29,7 @@ export const DarkColors = {
   warning: '#F59E0B',
   error: '#EF4444',
   card: '#131C2E',
+  shadow: 'rgba(0, 0, 0, 0.4)',
 };
 
 export const Colors = LightColors;
