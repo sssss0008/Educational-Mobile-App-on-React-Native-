@@ -17,7 +17,22 @@ export default function CoursesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('All');
 
-  const categories = ['All', 'Computer Science', 'Mathematics', 'Physics', 'History'];
+  const categories = [
+    'All',
+    'Computer Science',
+    'Artificial Intelligence',
+    'Mathematics',
+    'Physics',
+    'Cybersecurity',
+    'Economics',
+    'Design',
+    'Chemistry',
+    'Medicine',
+    'Engineering',
+    'Business',
+    'Psychology',
+    'History',
+  ];
 
   const filteredCourses = adminCourses.filter((c) => {
     const matchesCat = selectedCat === 'All' || c.category === selectedCat;
@@ -30,8 +45,8 @@ export default function CoursesScreen() {
       <StatusBar barStyle={colors.background === '#090D16' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Explore Courses</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Expand your knowledge with expert-led courses</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Explore {adminCourses.length} Master Courses</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Expand your knowledge with expert-led Coursera-grade programs</Text>
       </View>
 
       {/* Search Bar */}
@@ -39,7 +54,7 @@ export default function CoursesScreen() {
         <Search color={colors.textSecondary} size={20} style={{ marginRight: 10 }} />
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
-          placeholder="Search subjects, instructors..."
+          placeholder="Search across all 20+ courses..."
           placeholderTextColor={colors.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
