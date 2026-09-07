@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, StatusBar, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../src/constants/Colors';
+import { useThemeColors } from '../../src/constants/Colors';
 import { useStore } from '../../src/store/useStore';
-import { ShieldCheck, Lock, User, Plus, Trash2, ArrowLeft, BookOpen, Users, Award, LogOut, CheckCircle } from 'lucide-react-native';
+import { ShieldCheck, Lock, User, Plus, Trash2, ArrowLeft, BookOpen, Users, LogOut, Megaphone } from 'lucide-react-native';
 
 export default function AdminScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
   const isAdminLoggedIn = useStore((state) => state.isAdminLoggedIn);
   const adminLogin = useStore((state) => state.adminLogin);
   const adminLogout = useStore((state) => state.adminLogout);
   const adminCourses = useStore((state) => state.adminCourses);
   const addCourse = useStore((state) => state.addCourse);
   const deleteCourse = useStore((state) => state.deleteCourse);
+  const addAnnouncement = useStore((state) => state.addAnnouncement);
 
-  // Login form state
   const [adminId, setAdminId] = useState('');
   const [adminPass, setAdminPass] = useState('');
 
-  // New course form state
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newInstructor, setNewInstructor] = useState('');
   const [newPrice, setNewPrice] = useState('Free');
+
+  const [announcementMsg, setAnnouncementMsg] = useState('');
 
   const handleLogin = () => {
     const success = adminLogin(adminId, adminPass);
@@ -60,31 +62,38 @@ export default function AdminScreen() {
     Alert.alert('Success', 'Course added successfully to platform database.');
   };
 
+  const handleBroadcast = () => {
+    if (!announcementMsg.trim()) return;
+    addAnnouncement(announcementMsg);
+    setAnnouncementMsg('');
+    Alert.alert('Success', 'Announcement broadcasted to all students successfully.');
+  };
+
   if (!isAdminLoggedIn) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.loginContainer}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.loginContainer}>
+        <StatusBar barStyle={colors.background === '#090D16' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color={Colors.text} size={22} />
+        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.back()}>
+          <ArrowLeft color={colors.text} size={22} />
         </TouchableOpacity>
 
-        <View style={styles.lockBadge}>
-          <ShieldCheck color={Colors.primary} size={40} />
+        <View style={[styles.lockBadge, { backgroundColor: colors.primaryLight }]}>
+          <ShieldCheck color={colors.primary} size={40} />
         </View>
 
-        <Text style={styles.loginTitle}>Admin Portal</Text>
-        <Text style={styles.loginSubtitle}>Enter administrator credentials to access platform controls and course management.</Text>
+        <Text style={[styles.loginTitle, { color: colors.text }]}>Admin Portal</Text>
+        <Text style={[styles.loginSubtitle, { color: colors.textSecondary }]}>Enter administrator credentials to access platform controls and course management.</Text>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Admin ID</Text>
-            <View style={styles.inputWrapper}>
-              <User color={Colors.textSecondary} size={18} />
+            <Text style={[styles.label, { color: colors.text }]}>Admin ID</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <User color={colors.textSecondary} size={18} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter admin ID (admin)"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={adminId}
                 onChangeText={setAdminId}
                 autoCapitalize="none"
@@ -93,13 +102,13 @@ export default function AdminScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputWrapper}>
-              <Lock color={Colors.textSecondary} size={18} />
+            <Text style={[styles.label, { color: colors.text }]}>Password</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <Lock color={colors.textSecondary} size={18} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Enter password (admin123)"
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 secureTextEntry
                 value={adminPass}
                 onChangeText={setAdminPass}
@@ -107,14 +116,14 @@ export default function AdminScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <TouchableOpacity style={[styles.loginButton, { backgroundColor: colors.primary }]} onPress={handleLogin}>
             <Text style={styles.loginButtonText}>Login as Admin</Text>
           </TouchableOpacity>
 
-          <View style={styles.hintBox}>
-            <Text style={styles.hintTitle}>Demo Credentials:</Text>
-            <Text style={styles.hintText}>ID: <Text style={styles.bold}>admin</Text></Text>
-            <Text style={styles.hintText}>Password: <Text style={styles.bold}>admin123</Text></Text>
+          <View style={[styles.hintBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            <Text style={[styles.hintTitle, { color: colors.textSecondary }]}>Demo Credentials:</Text>
+            <Text style={[styles.hintText, { color: colors.text }]}>ID: <Text style={[styles.bold, { color: colors.primary }]}>admin</Text></Text>
+            <Text style={[styles.hintText, { color: colors.text }]}>Password: <Text style={[styles.bold, { color: colors.primary }]}>admin123</Text></Text>
           </View>
         </View>
       </ScrollView>
@@ -122,67 +131,83 @@ export default function AdminScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+      <StatusBar barStyle={colors.background === '#090D16' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color={Colors.text} size={22} />
+        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.back()}>
+          <ArrowLeft color={colors.text} size={22} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Admin Dashboard</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Admin Dashboard</Text>
         <TouchableOpacity style={styles.logoutBtn} onPress={adminLogout}>
-          <LogOut color={Colors.error} size={20} />
+          <LogOut color={colors.error} size={20} />
         </TouchableOpacity>
       </View>
 
-      {/* Platform Analytics Cards */}
+      {/* Analytics Cards */}
       <View style={styles.statsGrid}>
-        <View style={styles.statBox}>
-          <BookOpen color={Colors.primary} size={22} />
-          <Text style={styles.statNumber}>{adminCourses.length}</Text>
-          <Text style={styles.statText}>Active Courses</Text>
+        <View style={[styles.statBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <BookOpen color={colors.primary} size={22} />
+          <Text style={[styles.statNumber, { color: colors.text }]}>{adminCourses.length}</Text>
+          <Text style={[styles.statText, { color: colors.textSecondary }]}>Active Courses</Text>
         </View>
-        <View style={styles.statBox}>
-          <Users color="#059669" size={22} />
-          <Text style={styles.statNumber}>1,420</Text>
-          <Text style={styles.statText}>Enrolled Students</Text>
+        <View style={[styles.statBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Users color={colors.success} size={22} />
+          <Text style={[styles.statNumber, { color: colors.text }]}>1,420</Text>
+          <Text style={[styles.statText, { color: colors.textSecondary }]}>Enrolled Students</Text>
         </View>
+      </View>
+
+      {/* Broadcast Announcement */}
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>Broadcast Announcement</Text>
+        <TextInput
+          style={[styles.formInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+          placeholder="Type announcement for all students..."
+          placeholderTextColor={colors.textSecondary}
+          value={announcementMsg}
+          onChangeText={setAnnouncementMsg}
+        />
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.secondary }]} onPress={handleBroadcast}>
+          <Megaphone color="#FFFFFF" size={18} />
+          <Text style={styles.addBtnText}>Publish Announcement</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Add New Course Section */}
-      <View style={styles.card}>
-        <Text style={styles.sectionHeading}>Add New Course</Text>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>Add New Course</Text>
 
         <TextInput
-          style={styles.formInput}
+          style={[styles.formInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
           placeholder="Course Title"
-          placeholderTextColor={Colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={newTitle}
           onChangeText={setNewTitle}
         />
         <TextInput
-          style={styles.formInput}
+          style={[styles.formInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
           placeholder="Category (e.g., Computer Science)"
-          placeholderTextColor={Colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={newCategory}
           onChangeText={setNewCategory}
         />
         <TextInput
-          style={styles.formInput}
+          style={[styles.formInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
           placeholder="Instructor Name"
-          placeholderTextColor={Colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={newInstructor}
           onChangeText={setNewInstructor}
         />
         <TextInput
-          style={styles.formInput}
+          style={[styles.formInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
           placeholder="Price (e.g., Free or $49.99)"
-          placeholderTextColor={Colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={newPrice}
           onChangeText={setNewPrice}
         />
 
-        <TouchableOpacity style={styles.addBtn} onPress={handleAddCourseSubmit}>
+        <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]} onPress={handleAddCourseSubmit}>
           <Plus color="#FFFFFF" size={18} />
           <Text style={styles.addBtnText}>Publish Course</Text>
         </TouchableOpacity>
@@ -190,19 +215,19 @@ export default function AdminScreen() {
 
       {/* Course Management List */}
       <View style={styles.managementSection}>
-        <Text style={styles.sectionHeading}>Manage Platform Courses</Text>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>Manage Platform Courses</Text>
         {adminCourses.map((course) => (
-          <View key={course.id} style={styles.courseItem}>
+          <View key={course.id} style={[styles.courseItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Image source={{ uri: course.image }} style={styles.courseThumb} />
             <View style={styles.courseDetails}>
-              <Text style={styles.courseTitle} numberOfLines={1}>{course.title}</Text>
-              <Text style={styles.courseCategory}>{course.category} • {course.price}</Text>
+              <Text style={[styles.courseTitle, { color: colors.text }]} numberOfLines={1}>{course.title}</Text>
+              <Text style={[styles.courseCategory, { color: colors.textSecondary }]}>{course.category} • {course.price}</Text>
             </View>
             <TouchableOpacity
               style={styles.deleteBtn}
               onPress={() => deleteCourse(course.id)}
             >
-              <Trash2 color={Colors.error} size={18} />
+              <Trash2 color={colors.error} size={18} />
             </TouchableOpacity>
           </View>
         ))}
@@ -216,7 +241,6 @@ export default function AdminScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
     paddingHorizontal: 20,
     paddingTop: 16,
   },
@@ -227,18 +251,15 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
     marginBottom: 20,
   },
   lockBadge: {
     width: 72,
     height: 72,
     borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
@@ -247,24 +268,20 @@ const styles = StyleSheet.create({
   loginTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: Colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   loginSubtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 28,
     paddingHorizontal: 10,
     lineHeight: 20,
   },
   card: {
-    backgroundColor: Colors.surface,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: Colors.border,
     marginBottom: 24,
   },
   inputGroup: {
@@ -273,16 +290,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.text,
     marginBottom: 6,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
     paddingHorizontal: 14,
     height: 50,
     gap: 10,
@@ -290,20 +304,13 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: Colors.text,
   },
   loginButton: {
-    backgroundColor: Colors.primary,
     height: 52,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
   loginButtonText: {
     color: '#FFFFFF',
@@ -312,25 +319,20 @@ const styles = StyleSheet.create({
   },
   hintBox: {
     marginTop: 20,
-    backgroundColor: Colors.background,
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   hintTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.textSecondary,
     marginBottom: 4,
   },
   hintText: {
     fontSize: 13,
-    color: Colors.text,
   },
   bold: {
     fontWeight: '800',
-    color: Colors.primary,
   },
   headerRow: {
     flexDirection: 'row',
@@ -341,7 +343,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: Colors.text,
   },
   logoutBtn: {
     width: 40,
@@ -360,45 +361,36 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   statNumber: {
     fontSize: 22,
     fontWeight: '800',
-    color: Colors.text,
     marginTop: 8,
     marginBottom: 2,
   },
   statText: {
     fontSize: 12,
-    color: Colors.textSecondary,
     fontWeight: '600',
   },
   sectionHeading: {
     fontSize: 18,
     fontWeight: '800',
-    color: Colors.text,
     marginBottom: 16,
   },
   formInput: {
-    backgroundColor: Colors.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
     paddingHorizontal: 14,
     height: 48,
     fontSize: 15,
-    color: Colors.text,
     marginBottom: 12,
   },
   addBtn: {
     flexDirection: 'row',
-    backgroundColor: Colors.primary,
     height: 48,
     borderRadius: 12,
     justifyContent: 'center',
@@ -417,19 +409,16 @@ const styles = StyleSheet.create({
   courseItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
     padding: 12,
     borderRadius: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: Colors.border,
     gap: 12,
   },
   courseThumb: {
     width: 50,
     height: 50,
     borderRadius: 10,
-    backgroundColor: Colors.border,
   },
   courseDetails: {
     flex: 1,
@@ -437,12 +426,10 @@ const styles = StyleSheet.create({
   courseTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: Colors.text,
     marginBottom: 4,
   },
   courseCategory: {
     fontSize: 12,
-    color: Colors.textSecondary,
     fontWeight: '600',
   },
   deleteBtn: {

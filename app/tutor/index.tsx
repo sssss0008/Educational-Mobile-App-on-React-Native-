@@ -1,51 +1,61 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../src/constants/Colors';
+import { useThemeColors } from '../../src/constants/Colors';
 import { TUTORS } from '../../src/data/mockData';
-import { ArrowLeft, Star, Calendar, MessageSquare } from 'lucide-react-native';
+import { useStore } from '../../src/store/useStore';
+import { ArrowLeft, Star, Calendar, MessageSquare, Check } from 'lucide-react-native';
 
 export default function TutorScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
+  const bookedTutors = useStore((state) => state.bookedTutors);
+  const bookTutor = useStore((state) => state.bookTutor);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.background === '#090D16' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
-          <ArrowLeft color={Colors.text} size={20} />
+        <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => router.back()}>
+          <ArrowLeft color={colors.text} size={20} />
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>Expert Tutors</Text>
+        <Text style={[styles.topBarTitle, { color: colors.text }]}>Expert Tutors</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.headerSubtitle}>Book 1-on-1 private tutoring sessions with top professors and industry experts.</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Book 1-on-1 private tutoring sessions with top professors and industry experts.</Text>
 
-        {TUTORS.map((tutor) => (
-          <View key={tutor.id} style={styles.tutorCard}>
-            <Image source={{ uri: tutor.image }} style={styles.tutorImage} />
-            <View style={styles.tutorInfo}>
-              <View style={styles.tutorTopRow}>
-                <Text style={styles.tutorName}>{tutor.name}</Text>
-                <View style={styles.ratingBadge}>
-                  <Star color="#F59E0B" size={12} fill="#F59E0B" />
-                  <Text style={styles.ratingText}>{tutor.rating}</Text>
+        {TUTORS.map((tutor) => {
+          const isBooked = bookedTutors.includes(tutor.id);
+          return (
+            <View key={tutor.id} style={[styles.tutorCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Image source={{ uri: tutor.image }} style={styles.tutorImage} />
+              <View style={styles.tutorInfo}>
+                <View style={styles.tutorTopRow}>
+                  <Text style={[styles.tutorName, { color: colors.text }]}>{tutor.name}</Text>
+                  <View style={styles.ratingBadge}>
+                    <Star color="#F59E0B" size={12} fill="#F59E0B" />
+                    <Text style={styles.ratingText}>{tutor.rating}</Text>
+                  </View>
+                </View>
+                <Text style={[styles.tutorSubject, { color: colors.primary }]}>{tutor.subject}</Text>
+                <Text style={[styles.tutorBio, { color: colors.textSecondary }]} numberOfLines={2}>{tutor.bio}</Text>
+
+                <View style={styles.tutorFooter}>
+                  <Text style={[styles.tutorRate, { color: colors.text }]}>${tutor.hourlyRate}<Text style={[styles.rateUnit, { color: colors.textSecondary }]}> / hr</Text></Text>
+                  <TouchableOpacity
+                    style={[styles.bookBtn, { backgroundColor: isBooked ? colors.success : colors.primary }]}
+                    onPress={() => bookTutor(tutor.id)}
+                  >
+                    <Text style={styles.bookBtnText}>{isBooked ? 'Session Booked ✓' : 'Book Session'}</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-              <Text style={styles.tutorSubject}>{tutor.subject}</Text>
-              <Text style={styles.tutorBio} numberOfLines={2}>{tutor.bio}</Text>
-
-              <View style={styles.tutorFooter}>
-                <Text style={styles.tutorRate}>${tutor.hourlyRate}<Text style={styles.rateUnit}> / hr</Text></Text>
-                <TouchableOpacity style={styles.bookBtn} onPress={() => alert(`Booking request sent to ${tutor.name}!`)}>
-                  <Text style={styles.bookBtnText}>Book Session</Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -54,7 +64,6 @@ export default function TutorScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   topBar: {
     flexDirection: 'row',
@@ -68,16 +77,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   topBarTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: Colors.text,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -87,22 +93,18 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
     marginBottom: 4,
   },
   tutorCard: {
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
     flexDirection: 'row',
   },
   tutorImage: {
     width: 80,
     height: 100,
     borderRadius: 12,
-    backgroundColor: Colors.border,
   },
   tutorInfo: {
     flex: 1,
@@ -117,7 +119,6 @@ const styles = StyleSheet.create({
   tutorName: {
     fontSize: 16,
     fontWeight: '800',
-    color: Colors.text,
     flex: 1,
   },
   ratingBadge: {
@@ -137,12 +138,10 @@ const styles = StyleSheet.create({
   tutorSubject: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.primary,
     marginBottom: 6,
   },
   tutorBio: {
     fontSize: 12,
-    color: Colors.textSecondary,
     marginBottom: 12,
     lineHeight: 16,
   },
@@ -154,15 +153,12 @@ const styles = StyleSheet.create({
   tutorRate: {
     fontSize: 16,
     fontWeight: '800',
-    color: Colors.text,
   },
   rateUnit: {
     fontSize: 11,
-    color: Colors.textSecondary,
     fontWeight: '600',
   },
   bookBtn: {
-    backgroundColor: Colors.primary,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,

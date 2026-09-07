@@ -1,56 +1,70 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../src/constants/Colors';
-import { Award, ArrowRight, CheckCircle2, Clock } from 'lucide-react-native';
+import { useThemeColors } from '../../src/constants/Colors';
+import { useStore } from '../../src/store/useStore';
+import { Award, ArrowRight, CheckCircle2, Clock, Zap } from 'lucide-react-native';
 
 export default function QuizScreen() {
   const router = useRouter();
+  const colors = useThemeColors();
+  const flashcardMastery = useStore((state) => state.flashcardMastery);
+
   const quizzes = [
-    { id: 'q-1', title: 'React Native & Expo Mastery Quiz', questions: 10, time: '15 mins', category: 'Computer Science', score: '85%' },
-    { id: 'q-2', title: 'Calculus & Derivatives Practice', questions: 12, time: '20 mins', category: 'Mathematics', score: 'Not Taken' },
-    { id: 'q-3', title: 'Quantum Mechanics Concepts', questions: 8, time: '10 mins', category: 'Physics', score: '92%' },
+    { id: 'q-1', title: 'React Native & Expo Mastery Quiz', questions: 10, time: '15 mins', category: 'Computer Science' },
+    { id: 'q-2', title: 'Calculus & Derivatives Practice', questions: 12, time: '20 mins', category: 'Mathematics' },
+    { id: 'q-3', title: 'Quantum Mechanics Concepts', questions: 8, time: '10 mins', category: 'Physics' },
   ];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.background === '#090D16' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View style={styles.header}>
-        <Text style={styles.title}>Practice & Quizzes</Text>
-        <Text style={styles.subtitle}>Test your knowledge and earn achievement badges</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Practice & SM-2 Review</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Boost long-term memory retention with spaced repetition</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContainer}>
-        {quizzes.map((q) => (
-          <TouchableOpacity
-            key={q.id}
-            style={styles.card}
-            onPress={() => router.push(`/quiz/${q.id}`)}
-          >
-            <View style={styles.iconBox}>
-              <Award color={Colors.primary} size={24} />
-            </View>
-            <View style={styles.info}>
-              <Text style={styles.cat}>{q.category}</Text>
-              <Text style={styles.titleCard}>{q.title}</Text>
-              <View style={styles.metaRow}>
-                <View style={styles.metaItem}>
-                  <CheckCircle2 color={Colors.textSecondary} size={12} />
-                  <Text style={styles.metaText}>{q.questions} Questions</Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Clock color={Colors.textSecondary} size={12} />
-                  <Text style={styles.metaText}>{q.time}</Text>
+        {quizzes.map((q) => {
+          const masteryGrade = flashcardMastery[q.id];
+          return (
+            <TouchableOpacity
+              key={q.id}
+              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              onPress={() => router.push(`/quiz/${q.id}`)}
+            >
+              <View style={[styles.iconBox, { backgroundColor: colors.primaryLight }]}>
+                <Award color={colors.primary} size={24} />
+              </View>
+              <View style={styles.info}>
+                <Text style={[styles.cat, { color: colors.primary }]}>{q.category}</Text>
+                <Text style={[styles.titleCard, { color: colors.text }]}>{q.title}</Text>
+                <View style={styles.metaRow}>
+                  <View style={styles.metaItem}>
+                    <CheckCircle2 color={colors.textSecondary} size={12} />
+                    <Text style={[styles.metaText, { color: colors.textSecondary }]}>{q.questions} Questions</Text>
+                  </View>
+                  <View style={styles.metaItem}>
+                    <Clock color={colors.textSecondary} size={12} />
+                    <Text style={[styles.metaText, { color: colors.textSecondary }]}>{q.time}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-            <View style={styles.rightSide}>
-              <Text style={[styles.scoreText, q.score !== 'Not Taken' && styles.scoreDone]}>{q.score}</Text>
-              <ArrowRight color={Colors.textSecondary} size={18} />
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View style={styles.rightSide}>
+                {masteryGrade !== undefined ? (
+                  <View style={styles.masteryBadge}>
+                    <Zap color="#F59E0B" size={14} fill="#F59E0B" />
+                    <Text style={styles.masteryText}>SM-2: {masteryGrade}/5</Text>
+                  </View>
+                ) : (
+                  <Text style={[styles.scoreText, { color: colors.textSecondary }]}>Start Quiz</Text>
+                )}
+                <ArrowRight color={colors.textSecondary} size={18} />
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -59,7 +73,6 @@ export default function QuizScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
     paddingHorizontal: 20,
     paddingTop: 16,
   },
@@ -70,11 +83,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: Colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: Colors.textSecondary,
     marginTop: 2,
   },
   listContainer: {
@@ -83,18 +94,15 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
     alignItems: 'center',
   },
   iconBox: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -105,13 +113,11 @@ const styles = StyleSheet.create({
   cat: {
     fontSize: 11,
     fontWeight: '700',
-    color: Colors.primary,
     marginBottom: 2,
   },
   titleCard: {
     fontSize: 15,
     fontWeight: '700',
-    color: Colors.text,
     marginBottom: 6,
   },
   metaRow: {
@@ -125,7 +131,6 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11,
-    color: Colors.textSecondary,
     fontWeight: '600',
   },
   rightSide: {
@@ -135,9 +140,19 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.textSecondary,
   },
-  scoreDone: {
-    color: Colors.success,
+  masteryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4,
+  },
+  masteryText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#92400E',
   },
 });

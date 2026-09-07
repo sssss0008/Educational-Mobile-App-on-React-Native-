@@ -1,3 +1,5 @@
+import { useStore } from '../store/useStore';
+
 export const LightColors = {
   background: '#F8FAFC',
   surface: '#FFFFFF',
@@ -29,3 +31,8 @@ export const DarkColors = {
 };
 
 export const Colors = LightColors;
+
+export function useThemeColors() {
+  const theme = useStore((state) => state.theme);
+  return theme === 'dark' ? DarkColors : LightColors;
+}
