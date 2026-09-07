@@ -95,6 +95,14 @@ export default function ProfileScreen() {
           <ChevronRight color={Colors.textSecondary} size={18} />
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/admin')}>
+          <View style={[styles.iconBox, { backgroundColor: '#EDE9FE' }]}>
+            <Shield color="#7C3AED" size={20} />
+          </View>
+          <Text style={styles.menuText}>Admin Portal</Text>
+          <ChevronRight color={Colors.textSecondary} size={18} />
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.menuItem} onPress={() => alert('Help & Support')}>
           <View style={[styles.iconBox, { backgroundColor: '#F1F5F9' }]}>
             <HelpCircle color="#64748B" size={20} />
