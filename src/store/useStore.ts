@@ -19,6 +19,12 @@ interface AppState {
   toggleSaveCourse: (id: string) => void;
   streak: number;
 
+  // Coursera-grade features
+  enrolledCourses: string[];
+  enrollCourse: (id: string) => void;
+  completedCourses: string[];
+  completeCourse: (id: string) => void;
+
   // Onboarding
   isOnboardingCompleted: boolean;
   completeOnboarding: () => void;
@@ -87,6 +93,20 @@ export const useStore = create<AppState>()(
         }
       },
       streak: 5,
+
+      // Coursera-grade enrollment & completion
+      enrolledCourses: ['course-1', 'course-2'],
+      enrollCourse: (id) => {
+        if (!get().enrolledCourses.includes(id)) {
+          set({ enrolledCourses: [...get().enrolledCourses, id] });
+        }
+      },
+      completedCourses: ['course-1'],
+      completeCourse: (id) => {
+        if (!get().completedCourses.includes(id)) {
+          set({ completedCourses: [...get().completedCourses, id], certificates: [...get().certificates, id] });
+        }
+      },
 
       // Onboarding
       isOnboardingCompleted: false,
@@ -182,7 +202,7 @@ export const useStore = create<AppState>()(
         set({ flashcardMastery: { ...get().flashcardMastery, [quizId]: grade } });
       },
 
-      certificates: ['course-1', 'course-3'],
+      certificates: ['course-1'],
       claimCertificate: (courseId) => {
         if (!get().certificates.includes(courseId)) {
           set({ certificates: [...get().certificates, courseId] });
